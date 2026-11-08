@@ -1,0 +1,49 @@
+# Dependencies
+/vendor/
+/composer.phar
+/composer.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.sqlite
+*.db
+
+# Uploads
+/public/images/products/*
+/public/images/categories/*
+!/public/images/products/.gitkeep
+!/public/images/categories/.gitkeep
+
+# Cache
+/.phpunit.cache/
+/cache/
+/tmp/
+
+# Coverage
+/coverage/
+
+# IDE
+/.vscode/
+/.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testing
+.phpunit.result.cache
+
+# Backups
+*.bak
+*.backup
