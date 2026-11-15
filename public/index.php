@@ -59,7 +59,7 @@ $router->post('/comparar/limpiar', [CompareController::class, 'clear'], [CsrfMid
 // POST routes with CSRF protection
 $router->post('/login', [AuthController::class, 'login'], [fn() => (new \Nicastore\Core\Middleware\RateLimitMiddleware(5, 15, 'login'))->handle()]);
 $router->post('/register', [AuthController::class, 'register'], [fn() => (new \Nicastore\Core\Middleware\RateLimitMiddleware(3, 15, 'register'))->handle()]);
-$router->post('/logout', [AuthController::class, 'logout']);
+$router->post('/logout', [AuthController::class, 'logout'], [CsrfMiddleware::class]);
 $router->post('/carrito/agregar', [CartController::class, 'add'], [CsrfMiddleware::class]);
 $router->post('/carrito/actualizar/{itemId}', [CartController::class, 'update'], [CsrfMiddleware::class]);
 $router->post('/carrito/eliminar/{itemId}', [CartController::class, 'remove'], [CsrfMiddleware::class]);

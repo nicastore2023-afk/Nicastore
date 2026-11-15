@@ -47,11 +47,6 @@ abstract class Controller
     
     protected function redirect(string $url, int $statusCode = 302): void
     {
-        // Ensure session data is written before redirect
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-        
         header("Location: {$url}", true, $statusCode);
         exit;
     }

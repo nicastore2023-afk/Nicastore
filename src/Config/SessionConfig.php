@@ -49,6 +49,9 @@ class SessionConfig
                 $params["httponly"]
             );
         }
-        session_destroy();
+        // Do NOT call session_destroy() or session_write_close()
+        // Just clear $_SESSION and delete cookie
+        // Session file will be garbage collected by PHP
+        // At script shutdown, PHP writes empty $_SESSION to session file
     }
 }

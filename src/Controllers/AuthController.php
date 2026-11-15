@@ -189,7 +189,6 @@ $user = $this->userModel->find($userId);
         }
         
         Session::logout();
-        Session::flash('flash', ['type' => 'success', 'message' => 'Sesión cerrada correctamente']);
         $this->redirect(AppConfig::url('/'));
     }
     

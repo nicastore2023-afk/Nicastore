@@ -948,7 +948,31 @@
         updateCartCount,
         showLoading,
         hideLoading,
-        formatPrice
+        formatPrice,
+        
+        // CSRF Helpers
+        csrf: {
+            getToken: () => {
+                const meta = document.querySelector('meta[name="csrf-token"]');
+                const input = document.querySelector('input[name="_token"]');
+                return meta?.getAttribute('content') || input?.value || '';
+            },
+            getTokenName: () => '_token',
+            getHeaders: () => {
+                const token = window.Nicastore.csrf.getToken();
+                return token ? { 'X-CSRF-TOKEN': token } : {};
+            },
+            addToFormData: (formData) => {
+                const token = window.Nicastore.csrf.getToken();
+                if (token) formData.append('_token', token);
+            },
+            addToFetchOptions: (options = {}) => {
+                const headers = new Headers(options.headers || {});
+                const csrfHeaders = window.Nicastore.csrf.getHeaders();
+                Object.entries(csrfHeaders).forEach(([k, v]) => headers.set(k, v));
+                return { ...options, headers };
+            }
+        }
     };
 
     // ===================================
