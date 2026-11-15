@@ -60,7 +60,7 @@ class AuthController extends Controller
         
         if ($remember) {
             $token = bin2hex(random_bytes(32));
-            $this->userModel->update($user['id'], ['remember_token' => $token]);
+            $this->userModel->setRememberToken($user['id'], $token);
             setcookie('remember_token', $token, time() + 60 * 60 * 24 * 30, '/', '', false, true);
         }
         
@@ -183,8 +183,13 @@ $user = $this->userModel->find($userId);
     public function logout(): void
     {
         $token = $_COOKIE['remember_token'] ?? null;
-        if ($token) {
-            $this->userModel->query("UPDATE users SET remember_token = NULL WHERE remember_token = ?", [$token]);
+        $userId = Session::getUserId();
+        
+        if ($token && $userId) {
+            // Verify token belongs to this user before invalidating
+            if ($this->userModel->verifyRememberToken($userId, $token)) {
+                $this->userModel->invalidateRememberToken($userId);
+            }
             setcookie('remember_token', '', time() - 3600, '/', '', false, true);
         }
         
@@ -197,19 +202,33 @@ $user = $this->userModel->find($userId);
         $token = $_COOKIE['remember_token'] ?? null;
         
         if ($token && !Session::isLoggedIn()) {
-            $user = $this->userModel->query("SELECT * FROM users WHERE remember_token = ?", [$token])->fetch();
+            // Find user by token (we need to check all users since token is hashed)
+            // More efficient: add a selector column, but for now check all
+            $users = $this->userModel->query(
+                "SELECT * FROM users WHERE remember_token_hash IS NOT NULL AND remember_token_expires > datetime('now')"
+            )->fetchAll();
             
-            if ($user) {
-                Session::regenerate();
-                Session::setUser([
-                    'id' => $user['id'],
-                    'name' => $user['name'],
-                    'email' => $user['email'],
-                    'role' => $user['role']
-                ]);
-                
-                $cart = new \Nicastore\Models\Cart();
-                $cart->mergeGuestCart($user['id']);
+            foreach ($users as $user) {
+                if ($this->userModel->verifyRememberToken($user['id'], $token)) {
+                    // Token valid - ROTATE it for security
+                    $newToken = $this->userModel->rotateRememberToken($user['id']);
+                    if ($newToken) {
+                        // Update cookie with new token
+                        setcookie('remember_token', $newToken, time() + 60 * 60 * 24 * 30, '/', '', false, true);
+                    }
+                    
+                    Session::regenerate();
+                    Session::setUser([
+                        'id' => $user['id'],
+                        'name' => $user['name'],
+                        'email' => $user['email'],
+                        'role' => $user['role']
+                    ]);
+                    
+                    $cart = new \Nicastore\Models\Cart();
+                    $cart->mergeGuestCart($user['id']);
+                    break; // Only one valid token should match
+                }
             }
         }
     }
