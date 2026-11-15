@@ -52,29 +52,6 @@ abstract class Controller
             session_write_close();
         }
         
-        // Force session cookie to be sent with new session ID
-        $params = session_get_cookie_params();
-        $lifetime = (int)($_ENV['SESSION_LIFETIME'] ?? 120);
-        $secure = filter_var($_ENV['SESSION_SECURE'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
-        $httpOnly = filter_var($_ENV['SESSION_HTTP_ONLY'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
-        $sameSite = $secure ? 'None' : 'Lax';
-        
-        $cookieString = sprintf(
-            '%s=%s; expires=%s; path=%s; domain=%s; secure=%s; httponly=%s; samesite=%s',
-            session_name(),
-            session_id(),
-            gmdate('D, d-M-Y H:i:s T', time() + $lifetime * 60),
-            $params['path'],
-            $params['domain'] ?: '',
-            $secure ? 'true' : 'false',
-            $httpOnly ? 'true' : 'false',
-            $sameSite
-        );
-        
-        // Debug
-        error_log("REDIRECT DEBUG: session_id = " . session_id() . ", cookie = $cookieString");
-        
-        header("Set-Cookie: $cookieString", false);
         header("Location: {$url}", true, $statusCode);
         exit;
     }

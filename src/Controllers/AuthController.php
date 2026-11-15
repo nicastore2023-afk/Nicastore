@@ -81,18 +81,12 @@ class AuthController extends Controller
     
     public function register(): void
     {
-        file_put_contents('C:/xampp/htdocs/PROTOTIPO/register_debug.log', "REGISTER START\n", FILE_APPEND);
-        
         $identifier = RateLimitMiddleware::getIdentifier();
-        
-        file_put_contents('C:/xampp/htdocs/PROTOTIPO/register_debug.log', "After identifier\n", FILE_APPEND);
         
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         $passwordConfirm = $_POST['password_confirm'] ?? '';
-        
-        file_put_contents('C:/xampp/htdocs/PROTOTIPO/register_debug.log', "After input parsing\n", FILE_APPEND);
         
         $errors = [];
         
@@ -119,12 +113,9 @@ class AuthController extends Controller
         }
         
 if (!empty($errors)) {
-            file_put_contents('C:/xampp/htdocs/PROTOTIPO/register_debug.log', "VALIDATION ERRORS: " . json_encode($errors) . "\n", FILE_APPEND);
             Session::flash('flash', ['type' => 'error', 'message' => implode('<br>', $errors)]);
             $this->back();
         }
-        
-        file_put_contents('C:/xampp/htdocs/PROTOTIPO/register_debug.log', "After validation, before clear rate limit\n", FILE_APPEND);
         
         $userId = $this->userModel->createUser([
             'name' => $name,
@@ -143,8 +134,6 @@ $user = $this->userModel->find($userId);
             'email' => $user['email'],
             'role' => $user['role']
         ]);
-        
-        file_put_contents('C:/xampp/htdocs/PROTOTIPO/register_debug.log', "After setUser: " . json_encode($_SESSION) . "\n", FILE_APPEND);
         
         $cart = new \Nicastore\Models\Cart();
         $cart->mergeGuestCart($user['id']);

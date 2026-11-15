@@ -48,7 +48,22 @@ class Product extends Model
         }
         
         $whereClause = implode(' AND ', $where);
-        $orderBy = $filters['sort'] ?? 'id DESC';
+        
+        // Validate sort parameter against whitelist
+        $sortWhitelist = [
+            'id DESC' => 'id DESC',
+            'id ASC' => 'id ASC',
+            'name ASC' => 'name ASC',
+            'name DESC' => 'name DESC',
+            'price_asc' => 'COALESCE(sale_price, price) ASC',
+            'price_desc' => 'COALESCE(sale_price, price) DESC',
+            'newest' => 'created_at DESC',
+            'oldest' => 'created_at ASC',
+            'popular' => 'is_featured DESC, id DESC',
+        ];
+        
+        $sortKey = $filters['sort'] ?? 'id DESC';
+        $orderBy = $sortWhitelist[$sortKey] ?? 'id DESC';
         
         $offset = ($page - 1) * $perPage;
         $cols = '*';

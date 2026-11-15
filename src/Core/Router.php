@@ -57,9 +57,6 @@ class Router
     {
         $uri = parse_url($uri, PHP_URL_PATH) ?? '/';
         
-        // Debug: write to a file we can access
-        file_put_contents('C:/xampp/htdocs/PROTOTIPO/router_debug.log', "Router dispatch: method=$method, uri=$uri\n", FILE_APPEND);
-        
         foreach ($this->routes as $route) {
             if ($route['method'] !== $method && $route['method'] !== 'ANY') {
                 continue;
@@ -87,7 +84,6 @@ class Router
             }
         }
         
-        file_put_contents('C:/xampp/htdocs/PROTOTIPO/router_debug.log', "Router no match for: $uri\n", FILE_APPEND);
         $this->notFound();
     }
     
