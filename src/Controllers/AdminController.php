@@ -132,6 +132,7 @@ class AdminController extends Controller
     
     public function bulkProducts(): void
     {
+        $this->requireAdmin();
         $action = $_POST['action'] ?? '';
         $ids = $_POST['ids'] ?? [];
         
@@ -383,6 +384,7 @@ class AdminController extends Controller
     
     public function deleteProduct(int $id): void
     {
+        $this->requireAdmin();
         $this->productModel->delete($id);
         Session::flash('flash', ['type' => 'success', 'message' => 'Producto eliminado correctamente']);
         $this->redirect(AppConfig::url('/admin/productos'));
@@ -441,6 +443,7 @@ class AdminController extends Controller
     
     public function deleteCategory(int $id): void
     {
+        $this->requireAdmin();
         $this->categoryModel->delete($id);
         Session::flash('flash', ['type' => 'success', 'message' => 'Categoría eliminada correctamente']);
         $this->redirect(AppConfig::url('/admin/categorias'));
@@ -473,6 +476,7 @@ class AdminController extends Controller
     
     public function bulkOrders(): void
     {
+        $this->requireAdmin();
         $action = $_POST['action'] ?? '';
         $ids = $_POST['ids'] ?? [];
         
@@ -546,6 +550,7 @@ class AdminController extends Controller
     
     public function updateOrderStatus(int $id): void
     {
+        $this->requireAdmin();
         $status = $_POST['status'] ?? '';
         
         try {
@@ -685,6 +690,7 @@ class AdminController extends Controller
     
     public function updateUser(int $id): void
     {
+        $this->requireAdmin();
         $user = $this->userModel->find($id);
         
         if (!$user) {
@@ -740,6 +746,7 @@ class AdminController extends Controller
     
     public function deleteUser(int $id): void
     {
+        $this->requireAdmin();
         $currentUserId = Session::getUserId();
         
         if ($id == $currentUserId) {
@@ -774,6 +781,7 @@ class AdminController extends Controller
     
     public function updateSettings(): void
     {
+        $this->requireAdmin();
         $keys = ['store_name', 'store_email', 'store_phone', 'store_address', 'currency', 'tax_rate', 'shipping_cost', 'free_shipping_threshold'];
         
         foreach ($keys as $key) {

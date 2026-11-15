@@ -82,4 +82,32 @@ abstract class Controller
         echo json_encode($data);
         exit;
     }
+    
+    /**
+     * Revalidate admin authorization for critical operations.
+     * Returns 403 JSON for AJAX requests, redirects for regular navigation.
+     * Throws exception if not admin (should not happen if middleware works).
+     */
+    protected function requireAdmin(): void
+    {
+        $user = Session::getUser();
+        
+        if (!$user || ($user['role'] ?? '') !== 'admin') {
+            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                      strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+            $acceptsJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+            
+            if ($isAjax || $acceptsJson) {
+                http_response_code(403);
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Acceso denegado: se requieren permisos de administrador'
+                ]);
+            } else {
+                $this->redirect(AppConfig::url('/'));
+            }
+            exit;
+        }
+    }
 }
